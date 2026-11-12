@@ -1,0 +1,95 @@
+{
+    "title": "Restaurant Menu Scraper",
+    "type": "object",
+    "schemaVersion": 1,
+    "description": "Provide the restaurants to look up. For each one the Actor checks delivery partners first and falls back to the Google Maps menu.",
+    "properties": {
+        "restaurants": {
+            "title": "Restaurants",
+            "type": "array",
+            "description": "List of restaurants. Each entry is either a string (a restaurant name or a Google Maps URL) or an object with: name, address, city, country (ISO code), googleMapsUrl, latitude, longitude. A Google Maps URL (including maps.app.goo.gl short links) is the most reliable input because it carries exact coordinates.",
+            "editor": "json",
+            "prefill": [
+                { "name": "Example Restaurant", "address": "Main Street", "city": "Example City" }
+            ]
+        },
+        "country": {
+            "title": "Default country (ISO 3166-1 alpha-2)",
+            "type": "string",
+            "description": "Used for restaurants that don't set their own country. Foodpanda is region-specific, so this selects the regional API (supported: PK, BD, SG, MY, PH, TH, HK, TW, KH, LA, MM).",
+            "editor": "textfield",
+            "prefill": "PK"
+        },
+        "partners": {
+            "title": "Delivery partners to check",
+            "type": "array",
+            "description": "Partners are always tried in this order: Foodpanda, then Uber Eats. The first partner with a matching restaurant wins.",
+            "editor": "select",
+            "items": {
+                "type": "string",
+                "enum": ["foodpanda", "ubereats"],
+                "enumTitles": ["Foodpanda", "Uber Eats"]
+            },
+            "default": ["foodpanda", "ubereats"]
+        },
+        "googleMapsFallback": {
+            "title": "Fall back to Google Maps menu",
+            "type": "boolean",
+            "description": "When no delivery partner has the restaurant, open its Google Maps place page and extract the Menu tab.",
+            "default": true
+        },
+        "gmapsSessions": {
+            "title": "Google sessions (cookies)",
+            "type": "array",
+            "description": "Logged-in Google sessions used by the Google Maps fallback. Array of objects: { \"id\": \"account-1\", \"cookies\": [ ...cookie objects exported as JSON from a browser where you are signed in to an account you own... ] }. Several sessions are rotated, and sessions that hit a login wall are rested automatically. Stored as a secret.",
+            "editor": "json",
+            "isSecret": true
+        },
+        "matchThreshold": {
+            "title": "Match threshold (0-100)",
+            "type": "integer",
+            "description": "Minimum fuzzy-match score between the restaurant you asked for and a partner listing.",
+            "default": 80,
+            "minimum": 50,
+            "maximum": 100
+        },
+        "maxDistanceMeters": {
+            "title": "Max distance to partner listing (meters)",
+            "type": "integer",
+            "description": "A partner listing farther than this from the restaurant's coordinates is rejected (stops chain restaurants matching the wrong branch). Automatically relaxed when coordinates were only geocoded approximately.",
+            "default": 500,
+            "minimum": 50,
+            "maximum": 5000
+        },
+        "maxConcurrency": {
+            "title": "Max concurrent restaurants",
+            "type": "integer",
+            "description": "How many restaurants are processed in parallel.",
+            "default": 5,
+            "minimum": 1,
+            "maximum": 50
+        },
+        "maxGoogleMapsConcurrency": {
+            "title": "Max concurrent Google Maps pages",
+            "type": "integer",
+            "description": "Browser pages opened in parallel for the Google Maps fallback. Keep this low to protect your sessions.",
+            "default": 2,
+            "minimum": 1,
+            "maximum": 10
+        },
+        "proxyConfiguration": {
+            "title": "Proxy configuration",
+            "type": "object",
+            "description": "Residential proxies are strongly recommended: delivery platforms and Google both block datacenter IPs aggressively.",
+            "editor": "proxy",
+            "prefill": { "useApifyProxy": true, "apifyProxyGroups": ["RESIDENTIAL"] }
+        },
+        "debug": {
+            "title": "Debug mode",
+            "type": "boolean",
+            "description": "Saves screenshots and page text of the Google Maps flow to the key-value store so selectors can be tuned.",
+            "default": false
+        }
+    },
+    "required": ["restaurants"]
+}

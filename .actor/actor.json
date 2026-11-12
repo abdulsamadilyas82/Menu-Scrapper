@@ -1,0 +1,50 @@
+{
+    "actorSpecification": 1,
+    "name": "menu-scrapper",
+    "title": "Restaurant Menu Scraper",
+    "description": "Extracts restaurant menus from delivery partners (Foodpanda, Uber Eats) and falls back to the Google Maps menu section when no partner listing exists.",
+    "version": "0.1",
+    "buildTag": "latest",
+    "input": "./input_schema.json",
+    "dockerfile": "../Dockerfile",
+    "storages": {
+        "dataset": {
+            "actorSpecification": 1,
+            "title": "Menu items",
+            "views": {
+                "menu_items": {
+                    "title": "Menu items",
+                    "transformation": {
+                        "fields": [
+                            "restaurant",
+                            "source",
+                            "category",
+                            "name",
+                            "description",
+                            "price",
+                            "currency",
+                            "matchedName",
+                            "matchScore",
+                            "sourceUrl"
+                        ]
+                    },
+                    "display": {
+                        "component": "table",
+                        "properties": {
+                            "restaurant": { "label": "Restaurant", "format": "text" },
+                            "source": { "label": "Source", "format": "text" },
+                            "category": { "label": "Category", "format": "text" },
+                            "name": { "label": "Item", "format": "text" },
+                            "description": { "label": "Description", "format": "text" },
+                            "price": { "label": "Price", "format": "number" },
+                            "currency": { "label": "Currency", "format": "text" },
+                            "matchedName": { "label": "Matched listing", "format": "text" },
+                            "matchScore": { "label": "Match score", "format": "number" },
+                            "sourceUrl": { "label": "Source URL", "format": "link" }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
